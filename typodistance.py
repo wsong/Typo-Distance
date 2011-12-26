@@ -1,11 +1,5 @@
 #!/usr/bin/python
 
-# This program calculates the likelihood of one string being a typo of another.
-# Starting with a string such as "elephants", "rlephants" is a fairly likely
-# typo on a QWERTY keyboard, since R is close to E, but "ilephants" is less
-# likely, so the distance between "rlephants" and "elephants" will be lower
-# than the distance between "ilephants" and "rlephants".
-
 SHIFT_COST = 3.0
 INSERTION_COST = 1.0
 DELETION_COST = 1.0
@@ -25,8 +19,9 @@ qwertyShiftedKeyboardArray = [
     ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?'],
     ]
 
-# Sets the default keyboard to use to be QWERTY.  To use a new keyboard layout,
-# add new keyboard arrays and change these constants accordingly
+layoutDict = {'QWERTY': (qwertyKeyboardArray, qwertyShiftedKeyboardArray)}
+
+# Sets the default keyboard to use to be QWERTY.
 keyboardArray = qwertyKeyboardArray
 shiftedKeyboardArray = qwertyShiftedKeyboardArray
 
@@ -90,18 +85,20 @@ def substitutionCost(s, i, c):
     cost += euclideanKeyboardDistance(s[i], c)
     return cost
 
-# Finds the typo distance (a floating point number) between two strings
-def typoDistance(s, t):
+# Finds the typo distance (a floating point number) between two strings, based
+# on the canonical Levenshtein distance algorithm.
+def typoDistance(s, t, layout='QWERTY'):
+    try:
+        keyboardArray, shiftedKeyboardArray = layoutDict[layout]
+    except KeyError:
+        raise KeyError(layout + " keyboard layout not supported")
+    
     # A multidimensional array of 0s with len(s) rows and len(t) columns.
     d = [[0]*(len(t) + 1) for i in range(len(s) + 1)]
 
     for i in range(len(s) + 1):
-        # The cost of going from a nonempty string to an empty one is the cost
-        # of deleting each character in succession
         d[i][0] = sum([deletionCost(s, j - 1) for j in range(i)])
     for i in range(len(t) + 1):
-        # The cost of going from an empty string to a full one is the cost of
-        # inserting each character in succession
         intermediateString = ""
         cost = 0.0
         for j in range(i):

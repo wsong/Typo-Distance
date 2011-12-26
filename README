@@ -7,3 +7,10 @@ is that the second string is a typo of the first.
 Thus, for instance, "rlephants" is a fairly likely typo of "elephants" on a
 QWERTY keyboard, since R is fairly close to E, but "ilephants" is a less likely
 typo, and therefore would have a higher score.
+
+typoDistance takes in an optional third argument, layout.  This argument is a
+string that allows a user to change the keyboard layout.  Currently, only
+'QWERTY' is supported.
+
+This code was written on December 25, 2011.  I hereby release it into the public
+domain and release all rights over it.
