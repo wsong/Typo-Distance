@@ -88,9 +88,9 @@ def substitutionCost(s, i, c):
 # Finds the typo distance (a floating point number) between two strings, based
 # on the canonical Levenshtein distance algorithm.
 def typoDistance(s, t, layout='QWERTY'):
-    try:
+    if layout in layoutDict:
         keyboardArray, shiftedKeyboardArray = layoutDict[layout]
-    except KeyError:
+    else:
         raise KeyError(layout + " keyboard layout not supported")
     
     # A multidimensional array of 0s with len(s) rows and len(t) columns.
@@ -109,7 +109,7 @@ def typoDistance(s, t, layout='QWERTY'):
     for j in range(1, len(t) + 1):
         for i in range(1, len(s) + 1):
             if s[i - 1] == t[j - 1]:
-                d[i][j] = d[i - 2][j - 2]
+                d[i][j] = d[i - 1][j - 1]
             else:
                 delCost = deletionCost(s, i - 1)
                 insertCost = insertionCost(s, i - 1, t[j - 1])
