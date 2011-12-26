@@ -115,7 +115,7 @@ def typoDistance(s, t, layout='QWERTY'):
                 insertCost = insertionCost(s, i - 1, t[j - 1])
                 subCost = substitutionCost(s, i - 1, t[j - 1])
                 d[i][j] = min(d[i - 1][j] + delCost,
-                              min(d[i][j - 1] + insertCost,
-                                  d[i - 1][j - 1] + subCost))
+                              d[i][j - 1] + insertCost,
+                              d[i - 1][j - 1] + subCost)
 
     return d[len(s)][len(t)]
