@@ -138,7 +138,7 @@ def typoDistance(s, t, layout='QWERTY'):
                 d[i][j] = d[i - 1][j - 1]
             else:
                 delCost = deletionCost(s, i - 1)
-                insertCost = insertionCost(s, i - 1, t[j - 1])
+                insertCost = insertionCost(s, i, t[j - 1])
                 subCost = substitutionCost(s, i - 1, t[j - 1])
                 d[i][j] = min(d[i - 1][j] + delCost,
                               d[i][j - 1] + insertCost,
@@ -179,7 +179,8 @@ def typoGenerator(s, d, layout='QWERTY'):
 
     while(True):
         if t == 0:
-            yield changedString
+            # No actions
+            yield s
         else:
             # Perform the last action
             yield actions[c[t]].perform(changedString)
