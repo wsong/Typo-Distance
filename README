@@ -4,6 +4,6 @@ Thus, for instance, "rlephants" is a fairly likely typo of "elephants" on a QWER
 
 typoDistance takes in an optional third argument, layout.  This argument is a string that allows a user to change the keyboard layout.  Currently, only 'QWERTY' is supported.
 
-This program also contains a function called typoGenerator, which essentially reverses this process.  Given a start phrase s and a maximum typo distance d, typoGenerator returns a generator which will iterate through every string whose typo distance is less than or equal to d from s.  Like typoDistance, typoGenerator can take in an optional layout argument.
+This program also contains a function called typoGenerator, which essentially reverses this process.  Given a start phrase s and a maximum typo distance d, typoGenerator returns a generator which will iterate through every string whose typo distance is less than or equal to d from s.  Like typoDistance, typoGenerator can take in an optional layout argument.  typoGenerator's output is not de-duplicated, since a given string can be gotten through multiple different actions.  For example, starting from the string "testString," we can get to "t3stString" by either substituting e with 3 or by deleting e and inserting 3.
 
 This code was written on December 25, 2011 and January 1, 2012.  I hereby release it into the public domain and release all rights over it.
