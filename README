@@ -1,16 +1,9 @@
-This program contains a function called typoDistance, which takes in two strings
-as arguments.  This function finds the typo distance between the two strings,
-which is the likelihood that the second string is a typo of the first, as
-measured by a floating point number.  The lower the number, the more likely it
-is that the second string is a typo of the first.
+This program contains a function called typoDistance, which takes in two strings as arguments.  This function finds the typo distance between the two strings, which is the likelihood that the second string is a typo of the first, as measured by a floating point number.  The lower the number, the more likely it is that the second string is a typo of the first.
 
-Thus, for instance, "rlephants" is a fairly likely typo of "elephants" on a
-QWERTY keyboard, since R is fairly close to E, but "ilephants" is a less likely
-typo, and therefore would have a higher score.  One thing to note is that typoDistance is not commutative, since insertions are considered more costly than deletions.
+Thus, for instance, "rlephants" is a fairly likely typo of "elephants" on a QWERTY keyboard, since R is fairly close to E, but "ilephants" is a less likely typo, and therefore would have a higher score.  One thing to note is that typoDistance is not commutative, since insertions are considered more costly than deletions.
 
-typoDistance takes in an optional third argument, layout.  This argument is a
-string that allows a user to change the keyboard layout.  Currently, only
-'QWERTY' is supported.
+typoDistance takes in an optional third argument, layout.  This argument is a string that allows a user to change the keyboard layout.  Currently, only 'QWERTY' is supported.
 
-This code was written on December 25, 2011.  I hereby release it into the public
-domain and release all rights over it.
+This program also contains a function called typoGenerator, which essentially reverses this process.  Given a start phrase s and a maximum typo distance d, typoGenerator returns a generator which will iterate through every string whose typo distance is less than or equal to d from s.  Like typoDistance, typoGenerator can take in an optional layout argument.
+
+This code was written on December 25, 2011 and January 1, 2011.  I hereby release it into the public domain and release all rights over it.
