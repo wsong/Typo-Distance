@@ -174,29 +174,44 @@ def typoGenerator(s, d, layout='QWERTY'):
     changedString = s
 
     while(True):
-        yield changedString
+        if t == 0:
+            yield changedString
+        else:
+            yield actions[c[t]].perform(changedString)
 
         if c[t] > 0 and r >= actions[0].cost(changedString):
             t += 1
             c.append(0)
             r -= actions[0].cost(changedString)
-            changedString = actions[0].perform(changedString)
+            changedString = s
+            for a in c[1:-1]:
+                changedString = actions[a].perform(changedString)
+            #changedString = actions[0].perform(changedString)
             continue
 
         while True:
             if t == 0:
                 return
-            if c[t - 1] > c[t] + 1 and r >= (actions[c[t] + 1].cost(changedString) - actions[c[t]].cost(changedString)):
-                c[t] += 1
-                r -= actions[c[t]].cost(changedString) - actions[c[t] - 1].cost(changedString)
+            i = 1
+            brokeOut = False
+            while(c[t - 1] > c[t] + i):
+                if r >= (actions[c[t] + i].cost(changedString) - actions[c[t]].cost(changedString)):
+                    c[t] += i
+                    r -= actions[c[t]].cost(changedString) - actions[c[t] - i].cost(changedString)
+                    changedString = s
+                    for a in c[1:-1]:
+                        changedString = actions[a].perform(changedString)
+                    brokeOut = True
+                    break
+                else:
+                    i += 1
+            if not brokeOut:
+                r += actions[c[t]].cost(changedString)
+                c.pop(t)
                 changedString = s
-                for a in c[1:]:
+                for a in c[1:-1]:
                     changedString = actions[a].perform(changedString)
+                t -= 1
+            else:
                 break
-            r += actions[c[t]].cost(changedString)
-            c.pop(t)
-            changedString = s
-            for a in c[1:]:
-                changedString = actions[a].perform(changedString)
-            t -= 1
         
