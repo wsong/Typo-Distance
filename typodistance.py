@@ -25,6 +25,32 @@ layoutDict = {'QWERTY': (qwertyKeyboardArray, qwertyShiftedKeyboardArray)}
 keyboardArray = qwertyKeyboardArray
 shiftedKeyboardArray = qwertyShiftedKeyboardArray
 
+class InsertionAction:
+    def __init__(self, i, c):
+        self.i = i
+        self.c = c
+    def cost(self, s):
+        return insertionCost(s, self.i, self.c)
+    def perform(self, s):
+        return s[:i] + c + s[i:]
+
+class SubstitutionAction:
+    def __init__(self, i, c):
+        self.i = i
+        self.c = c
+    def cost(self, s):
+        return substitutionCost(s, self.i, self.c)
+    def perform(self, s):
+        return s[:i] + c + s[(i + 1):]
+
+class DeletionAction:
+    def __init__(self, i):
+        self.i = i
+    def cost(self, s):
+        return deletionCost(s, self.i)
+    def perform(self, s):
+        return s[:i] + s[(i + 1):]
+
 # Returns the keyboard layout c "lives in"; for instance, if c is A, this will
 # return the shifted keyboard array, but if it is a, it will return the regular
 # keyboard array.  Raises a ValueError if character is in neither array
@@ -119,3 +145,53 @@ def typoDistance(s, t, layout='QWERTY'):
                               d[i - 1][j - 1] + subCost)
 
     return d[len(s)][len(t)]
+
+# Returns a list of the possible actions than can be performed on a string s.
+def getPossibleActions(s, layout='QWERTY'):
+    if layout in layoutDict:
+        keyboardArray, shiftedKeyboardArray = layoutDict[layout]
+    else:
+        raise KeyError(layout + " keyboard layout not supported")
+    actions = []
+    for i in s:
+        actions.add(DeletionAction(i))
+        for key in sum([r for r in keyboardArray]) + sum([r for r in shiftedKeyboardArray]):
+            actions.add(SubstitutionAction(i, key))
+            actions.add(InsertionAction(i, key))
+    return actions
+
+# Returns a generator which generates all possible typos that are less than
+# or equal to the given maximum typo distance d from the start phrase s.  Based
+# on Knuth's Algorithm F in Pre-Facsicle 3A.
+def typoGenerator(s, d, layout='QWERTY'):
+    t = 0
+    r = d
+    actions = getPossibleActions(s, layout)
+    # A list of the actions we will perform on this string.  We store the
+    # indices of the actions in the action list above; the 0th action in
+    # currentActions is simply a placeholder value and is not used.
+    c = [len(actions)]
+
+    while(True):
+        changedString = s
+        for a in c[1:]:
+            changedString = a.perform(changedString)
+        yield changedString
+
+        if c[t] > 0 and r >= c[t].cost(s):
+            t += 1
+            c[t] = 0
+            r -= c[t].cost(s)
+            continue
+
+        while t != 0:
+            if c[t - 1] > c[t] + 1 and r >= (actions[c[t] + 1].cost(s) - actions[c[t]].cost(s)):
+                c[t] += 1
+                r -= actions[c[t]].cost(s) - actions[c[t - 1]].cost(s)
+                break
+            r += actions[c[t]].cost(s)
+            t -= 1
+
+        if t == 0:
+            break
+        
