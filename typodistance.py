@@ -171,14 +171,20 @@ def typoGenerator(s, d, layout='QWERTY'):
     # indices of the actions in the action list above; the 0th action in
     # currentActions is simply a placeholder value and is not used.
     c = [len(actions)]
+    # We update the string as we go along, so that we can check the cost
+    # of performing, say, an individual assertion.  This variable is "one
+    # behind" the actions in c, so we can check the cost of performing
+    # the last action in c versus some other action.
     changedString = s
 
     while(True):
         if t == 0:
             yield changedString
         else:
+            # Perform the last action
             yield actions[c[t]].perform(changedString)
 
+        # Let's try adding a new action
         if c[t] > 0 and r >= actions[0].cost(changedString):
             t += 1
             c.append(0)
@@ -186,7 +192,6 @@ def typoGenerator(s, d, layout='QWERTY'):
             changedString = s
             for a in c[1:-1]:
                 changedString = actions[a].perform(changedString)
-            #changedString = actions[0].perform(changedString)
             continue
 
         while True:
@@ -194,8 +199,10 @@ def typoGenerator(s, d, layout='QWERTY'):
                 return
             i = 1
             brokeOut = False
+            # Let's try replacing the last action with a new candidate
             while(c[t - 1] > c[t] + i):
                 if r >= (actions[c[t] + i].cost(changedString) - actions[c[t]].cost(changedString)):
+                    # Our new candidate is cheap enough; use it.
                     c[t] += i
                     r -= actions[c[t]].cost(changedString) - actions[c[t] - i].cost(changedString)
                     changedString = s
@@ -204,8 +211,11 @@ def typoGenerator(s, d, layout='QWERTY'):
                     brokeOut = True
                     break
                 else:
+                    # The candidate was too expensive; move onto the next
                     i += 1
+                    
             if not brokeOut:
+                # Let's try removing an action
                 r += actions[c[t]].cost(changedString)
                 c.pop(t)
                 changedString = s
