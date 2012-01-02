@@ -32,7 +32,7 @@ class InsertionAction:
     def cost(self, s):
         return insertionCost(s, self.i, self.c)
     def perform(self, s):
-        return s[:i] + c + s[i:]
+        return s[:self.i] + self.c + s[self.i:]
 
 class SubstitutionAction:
     def __init__(self, i, c):
@@ -41,7 +41,7 @@ class SubstitutionAction:
     def cost(self, s):
         return substitutionCost(s, self.i, self.c)
     def perform(self, s):
-        return s[:i] + c + s[(i + 1):]
+        return s[:self.i] + self.c + s[(self.i + 1):]
 
 class DeletionAction:
     def __init__(self, i):
@@ -49,7 +49,7 @@ class DeletionAction:
     def cost(self, s):
         return deletionCost(s, self.i)
     def perform(self, s):
-        return s[:i] + s[(i + 1):]
+        return s[:self.i] + s[(self.i + 1):]
 
 # Returns the keyboard layout c "lives in"; for instance, if c is A, this will
 # return the shifted keyboard array, but if it is a, it will return the regular
@@ -153,11 +153,11 @@ def getPossibleActions(s, layout='QWERTY'):
     else:
         raise KeyError(layout + " keyboard layout not supported")
     actions = []
-    for i in s:
-        actions.add(DeletionAction(i))
-        for key in sum([r for r in keyboardArray]) + sum([r for r in shiftedKeyboardArray]):
-            actions.add(SubstitutionAction(i, key))
-            actions.add(InsertionAction(i, key))
+    for i in range(len(s)):
+        actions.append(DeletionAction(i))
+        for key in (sum([r for r in keyboardArray], []) + sum([r for r in shiftedKeyboardArray], [])):
+            actions.append(SubstitutionAction(i, key))
+            actions.append(InsertionAction(i, key))
     return actions
 
 # Returns a generator which generates all possible typos that are less than
@@ -171,27 +171,30 @@ def typoGenerator(s, d, layout='QWERTY'):
     # indices of the actions in the action list above; the 0th action in
     # currentActions is simply a placeholder value and is not used.
     c = [len(actions)]
+    changedString = s
 
     while(True):
-        changedString = s
-        for a in c[1:]:
-            changedString = a.perform(changedString)
         yield changedString
 
-        if c[t] > 0 and r >= c[t].cost(s):
+        if c[t] > 0 and r >= actions[0].cost(changedString):
             t += 1
-            c[t] = 0
-            r -= c[t].cost(s)
+            c.append(0)
+            r -= actions[0].cost(changedString)
+            changedString = actions[0].perform(changedString)
             continue
 
-        while t != 0:
-            if c[t - 1] > c[t] + 1 and r >= (actions[c[t] + 1].cost(s) - actions[c[t]].cost(s)):
+        while True:
+            if t == 0:
+                return
+            if c[t - 1] > c[t] + 1 and r >= (actions[c[t] + 1].cost(changedString) - actions[c[t]].cost(changedString)):
                 c[t] += 1
-                r -= actions[c[t]].cost(s) - actions[c[t - 1]].cost(s)
+                r -= actions[c[t]].cost(changedString) - actions[c[t] - 1].cost(changedString)
+                for a in c[1:]:
+                    changedString = actions[a].perform(changedString)
                 break
-            r += actions[c[t]].cost(s)
+            r += actions[c[t]].cost(changedString)
+            c.pop(t)
+            for a in c[1:]:
+                changedString = actions[a].perform(changedString)
             t -= 1
-
-        if t == 0:
-            break
         
