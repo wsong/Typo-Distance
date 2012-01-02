@@ -189,11 +189,13 @@ def typoGenerator(s, d, layout='QWERTY'):
             if c[t - 1] > c[t] + 1 and r >= (actions[c[t] + 1].cost(changedString) - actions[c[t]].cost(changedString)):
                 c[t] += 1
                 r -= actions[c[t]].cost(changedString) - actions[c[t] - 1].cost(changedString)
+                changedString = s
                 for a in c[1:]:
                     changedString = actions[a].perform(changedString)
                 break
             r += actions[c[t]].cost(changedString)
             c.pop(t)
+            changedString = s
             for a in c[1:]:
                 changedString = actions[a].perform(changedString)
             t -= 1
